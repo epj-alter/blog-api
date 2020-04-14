@@ -12,7 +12,7 @@ const http: any = require('http');
  * Get port from environment and store in Express.
  */
 
-const port: any = normalizePort(process.env.PORT || '3000');
+const port: any = normalizePort(process.env.PORT || '8080');
 app.set('port', port);
 
 /**
@@ -25,7 +25,10 @@ const server: any = http.createServer(app);
  * Listen on provided port, on all network interfaces.
  */
 
-server.listen(port);
+server.listen(port, function () {
+  console.log('API Server is running..');
+});
+
 server.on('error', onError);
 server.on('listening', onListening);
 

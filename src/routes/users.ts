@@ -10,20 +10,16 @@ import * as bodyParser from 'body-parser';
  * @tokens
  * @errorFormatter
  * @dataValidation
+ * @seeding
  */
 import { encrypt, compare } from '../utility/security/encryptionHandler';
 import { asignToken, verifyToken } from '../utility/security/tokenHandler';
 import {
   formatQueryError,
   formatDateToSQL,
-  formateDateToLocale
+  formateDateToLocale,
 } from '../utility/format/formatHandler';
-import { register, login } from '../utility/validation/users/validationHandler';
-
-/**
- * Import Models && operators
- */
-import { User } from '../models/';
+import { register, login } from '../validation/users/validationHandler';
 
 /**
  * Instanciate Router and Body-parser objects.
@@ -35,13 +31,22 @@ const urlencodedParser = bodyParser.urlencoded({ extended: false });
 /**
  *
  */
-router.get('/', urlencodedParser, async function(req, res) {
-  try {
-    const user = await User.findAll(undefined, undefined, { nationality: 'ASC' }, true);
+router.get('/', urlencodedParser, async function (req, res) {
+  // try {
+  //   const user = await User.findAll(undefined, undefined, { nationality: 'ASC' }, true);
+  //   if (user?.code) return res.status(400).send('No users found');
+  //   else if (user) return res.status(200).send(user);
+  //   else return res.status(400).send('No users found!');
+  // } catch (error) {
+  //   console.log(error);
+  //   res.status(400).send('Oops! Something went wrong!');
+  // }
+});
 
-    if (user?.code) return res.status(400).send('No users found');
-    else if (user) return res.status(200).send(user);
-    else return res.status(400).send('No users found!');
+router.get('/seed', urlencodedParser, async function (req, res) {
+  try {
+    res.status(200).send('seeding successful!');
+    console.log('delete create');
   } catch (error) {
     console.log(error);
     res.status(400).send('Oops! Something went wrong!');
