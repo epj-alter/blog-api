@@ -31,32 +31,27 @@ const db = new Pool({
 /**
  * Export modified query function
  */
-interface QueryOptions {
-  queryString: string;
-  queryParams?: any;
-  log?: boolean;
-}
 /**
- * @param options : { "querystring", any?, log? }
+ * @param log Specify if the query should be logged in the console
  * @param returns Specify if the query returns an object
  */
-export async function query(options: QueryOptions, returns?: boolean) {
+export async function query(queryString: string, params?: any[], log?: boolean, returns?: boolean) {
   const start = Date.now();
   try {
-    const response = await db.query(options.queryString, options?.queryParams);
-    if (options.log) {
+    const response = await db.query(queryString, params);
+    if (log) {
       const duration = Date.now() - start;
       console.log('Query Executed: ', {
-        text: options.queryString,
+        text: queryString,
         duration,
         rows: response.rowCount,
       });
     }
     if (returns && response.rows.length > 0 && response) {
-      return response.rows;
+      return response.rows[0];
     }
   } catch (error) {
-    if (options.log) {
+    if (log) {
       console.log(error.severity + ' ' + error.code + ' OCCURRED');
     }
     return error;

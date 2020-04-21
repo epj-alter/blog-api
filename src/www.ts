@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+import 'dotenv/config';
+const APP_PORT: number = parseInt(process.env.APP_PORT as string);
 
 /**
  * Module dependencies.
@@ -12,7 +14,7 @@ const http: any = require('http');
  * Get port from environment and store in Express.
  */
 
-const port: any = normalizePort(process.env.PORT || '8080');
+const port: any = normalizePort(APP_PORT || '8080');
 app.set('port', port);
 
 /**
