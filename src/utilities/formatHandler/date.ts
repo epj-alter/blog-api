@@ -1,4 +1,4 @@
-export function formatDateToSQL(date) {
+export function dateToSQL(date) {
   let month = '' + date.getMonth();
   let day = '' + date.getDate();
 
@@ -13,12 +13,7 @@ export function formatDateToSQL(date) {
   return [day, month, date.getFullYear()].join('.');
 }
 
-export function formateDateToLocale(date) {
+export function dateToLocale(date) {
   const options = { year: 'numeric', month: 'long', day: '2-digit' };
   return date.toLocaleDateString(undefined, options);
-}
-
-export function handleServerError(res, error) {
-  console.log(error);
-  return res.status(500).send('Something went wrong!');
 }

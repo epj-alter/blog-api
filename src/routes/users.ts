@@ -11,13 +11,13 @@ import { query } from '../db/';
 
 /**
  * Import Utilities
- * @errorFormatter
+ * @formatHandler
  * @encryption
  * @tokens
  * @dataValidation
  * @seeding
  */
-import { handleServerError } from '../utilities/format/formatHandler';
+import * as format from '../utilities/formatHandler/index';
 import { encrypt, compare } from '../utilities/security/encryptionHandler';
 import { asignToken, verifyToken, getIdentity } from '../utilities/security/tokenHandler';
 import * as validate from '../utilities/validation';
@@ -32,34 +32,34 @@ const urlencodedParser = bodyParser.urlencoded({ extended: false });
 /**
  * Manage user routes
  */
-router.get('/', jsonParser, verifyToken, async function (req, res) {
+router.get('/', jsonParser, verifyToken, async (req, res) => {
   try {
     const _id = await getIdentity(req.body.token);
     res.status(200).send(`Welcome! your id: ${_id}`);
   } catch (error) {
-    handleServerError(res, error);
+    return res.status(500).json({ msg: 'Something went wrong!' });
   }
 });
 
 /**
  * DEBUG SEED USERS
  */
-router.get('/seed', jsonParser, async function (req, res) {
+router.get('/seed', jsonParser, async (req, res) => {
   try {
     res.status(200).send('seeding successful!');
     console.log('delete create');
   } catch (error) {
-    handleServerError(res, error);
+    return res.status(500).json({ msg: 'Something went wrong!' });
   }
 });
 
 /**
  *  Register a new user
  */
-router.get('/register', jsonParser, async (req: any, res: any) => {
+router.get('/register', jsonParser, async (req, res) => {
   // VALIDATE RECEIVED DATA
   const { error } = validate.user.registration(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
+  if (error) return res.status(400).json({ msg: error.details[0].message });
   // PROCEED WITH REGISTRATION
   try {
     // CHECK IF USER OR EMAIL EXISTS
@@ -68,58 +68,61 @@ router.get('/register', jsonParser, async (req: any, res: any) => {
       [req.body.username, req.body.email, req.body.public_name],
       false
     );
-    // REJECT USERNAME OR EMAIL
     if (userExists) {
-      return res.status(400).send('Username is not available');
+      return res.status(400).json({ msg: 'Username not available' });
     }
     // GENERATE A HASHED UNIQUE ID AND A HASHED PASSWORD
     const hashedId = await encrypt(req.body.username + req.body.email);
     const hashedPassword = await encrypt(req.body.password);
-    // CREATE USER INTO DATABASE
+    // CREATE USER
     const newUser = await query(
       'INSERT INTO users(_id, username, password, email, public_name) VALUES($1, $2, $3, $4, $5)',
       [hashedId, req.body.username, hashedPassword, req.body.email, req.body.public_name]
     );
     // CHECK FOR ERRORS IN THE QUERY
     if (newUser?.code) {
-      console.log(newUser);
-      return res.status(400).send('Unexpected error ocurred');
+      return res.status(500).json({ msg: 'Something went wrong!' });
     }
     // SEND RESPONSE BACK TO CLIENT
     res.status(200).send('Created successfully');
   } catch (error) {
-    handleServerError(res, error);
+    return res.status(500).json({ msg: 'Something went wrong!' });
   }
 });
 
 /**
  *
  */
-router.get('/login', jsonParser, async (req: any, res: any) => {
+router.get('/login', jsonParser, async (req, res) => {
   // VALIDATE REQUEST
   const { error } = validate.user.login(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
+  if (error) return res.status(400).json({ msg: error.details[0].message });
   // PROCEED WITH LOGIN
   try {
-    // CHECK IF USERNAME EXISTS
+    // CHECK USER IN DATABASE
     const user = await query(
       'SELECT _id, username, password FROM users WHERE username = $1 OR email = $1',
       [req.body.username],
       false
     );
     // REJECT USERNAME
-    if (!user) return res.status(400).send('There was a problem with the username or password');
+    if (!user) {
+      return res.status(400).json({ msg: 'Invalid username or password' });
+    }
     // CHECK IF PASSWORD IS CORRECT
     const validPassword = await compare(req.body.password, user.password);
     // REJECT PASSWORD
-    if (!validPassword) res.status(400).send('There was a problem, with the username or password');
+    if (!validPassword) {
+      return res.status(400).json({ msg: 'Invalid username or password' });
+    }
     // CREATE AND ASIGN TOKEN
     else {
       const token = await asignToken(user._id);
-      res.status(200).send(`Welcome ${user._id} \nHere is your Token: ${token}`);
+      res.status(200).send({ msg: `Welcome ${user._id} \nHere is your Token: ${token}` });
     }
   } catch (error) {
-    handleServerError(res, error);
+    console.log(error);
+    return res.status(500).json({ msg: 'Something went wrong!' });
   }
 });
 
