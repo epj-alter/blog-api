@@ -33,9 +33,8 @@ const db = new Pool({
  */
 /**
  * @param log Specify if the query should be logged in the console
- * @param returns Specify if the query returns an object
  */
-export async function query(queryString: string, params?: any[], log?: boolean, returns?: boolean) {
+export async function query(queryString: string, params?: any[], bulk?: boolean, log?: boolean) {
   const start = Date.now();
   try {
     const response = await db.query(queryString, params);
@@ -47,12 +46,14 @@ export async function query(queryString: string, params?: any[], log?: boolean, 
         rows: response.rowCount,
       });
     }
-    if (returns && response.rows.length > 0 && response) {
+    if (!bulk && response && response.rows.length > 0) {
       return response.rows[0];
+    } else if (bulk && response && response.rows.length > 0) {
+      return response.rows;
     }
   } catch (error) {
     if (log) {
-      console.log(error.severity + ' ' + error.code + ' OCCURRED');
+      console.log(`An error ocurred: ${error.severity} ${error.code}`);
     }
     return error;
   }

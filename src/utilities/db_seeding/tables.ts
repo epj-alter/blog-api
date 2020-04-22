@@ -1,8 +1,6 @@
-import * as faker from 'faker';
-import { formatDateToSQL } from '../format/formatHandler';
 import { query } from '../../db/index';
 
-class Table_Seeder {
+class TableSeeder {
   /**
    * @TODO CREATE A PROPER SEEDING SYSTEM
    */
@@ -104,4 +102,4 @@ class Table_Seeder {
   }
 }
 
-export const tables = new Table_Seeder();
+export const tables = new TableSeeder();

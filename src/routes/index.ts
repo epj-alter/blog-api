@@ -2,6 +2,7 @@
  * Import all routes
  */
 import users from './users';
+import posts from './posts';
 import root from './root';
 
 /**
@@ -11,4 +12,5 @@ import root from './root';
 export default function routes(app: any) {
   app.use('/', root);
   app.use('/api/user', users);
+  app.use('/api/post', posts);
 }

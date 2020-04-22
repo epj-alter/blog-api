@@ -1,7 +1,3 @@
-export function formatQueryError(error: any) {
-  return error.severity + ' CODE ' + error.code + ' ' + error.type + ' ' + error.message;
-}
-
 export function formatDateToSQL(date) {
   let month = '' + date.getMonth();
   let day = '' + date.getDate();
@@ -20,4 +16,9 @@ export function formatDateToSQL(date) {
 export function formateDateToLocale(date) {
   const options = { year: 'numeric', month: 'long', day: '2-digit' };
   return date.toLocaleDateString(undefined, options);
+}
+
+export function handleServerError(res, error) {
+  console.log(error);
+  return res.status(500).send('Something went wrong!');
 }
