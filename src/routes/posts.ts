@@ -13,16 +13,12 @@ import { query } from '../db/';
 /**
  * Import Utilities
  * @errorFormatter
- * @encryption
- * @tokens
+ * @security
  * @dataValidation
  * @seeding
  */
-import * as format from '../utilities/formatHandler/';
-import { encrypt, compare } from '../utilities/security/encryptionHandler';
-import { asignToken, verifyToken, getIdentity } from '../utilities/security/tokenHandler';
+import * as security from '../utilities/security/';
 import * as validate from '../utilities/validation';
-import { post } from '../utilities/validation';
 
 /**
  * Instanciate Router and Body-parser objects.
@@ -35,24 +31,31 @@ const urlencodedParser = bodyParser.urlencoded({ extended: false });
  * Manage post routes
  */
 /**
- * GET POSTS
+ * GET
  */
-router.get('/', jsonParser, verifyToken, async (req, res) => {
+router.get('/', jsonParser, security.verifyToken, async (req, res) => {
   try {
-    const posts = await query('SELECT * FROM posts', undefined, true);
+    const posts = await query(
+      "SELECT u.public_name AS author, p.title, p.image, CONCAT(LEFT(p.content, 50), '...') AS preview, p.created  FROM posts AS p, users AS u WHERE p.user_id = u._id"
+    );
     return res.status(200).json(posts);
   } catch (error) {
     return res.status(500).json({ msg: 'Something went wrong!' });
   }
 });
 
-// CREATE POST
-router.post('/', jsonParser, verifyToken, async (req, res) => {
+/**
+ * CREATE
+ */
+router.post('/', jsonParser, security.verifyToken, async (req, res) => {
   // VALIDATE RECEIVED DATA
   const { error } = validate.post.insert(req.body);
   if (error) {
     return res.status(400).send({ msg: error.details[0].message });
   }
+  // EXTRACT _id FROM TOKEN
+  const user_id = security.get_idFromToken(req.body.token);
+
   // PROCEED WITH POST CREATION
   try {
     //CHECK IF DUPLICATE POST
@@ -66,16 +69,22 @@ router.post('/', jsonParser, verifyToken, async (req, res) => {
     // CREATE POST
     const newPost = await query(
       'INSERT INTO posts(user_id, title, image, content) VALUES($1, $2, $3, $4) ',
-      [req.body._id, req.body.title, req.body.image, req.body.content]
+      [user_id, req.body.title, req.body.image, req.body.content]
     );
     //CHECK FOR QUERY ERRORS
     if (newPost?.code) {
       return res.status(400).json({ msg: 'An unexpected error ocurred' });
     }
+    // RESPOND
+    return res.status(200).json('Post created successfully!');
   } catch (error) {
     return res.status(500).json({ msg: 'Something went wrong!' });
   }
 });
+
+/**
+ * SHOW
+ */
 
 /**
  * DEBUG SEED POSTS

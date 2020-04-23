@@ -17,9 +17,7 @@ import { query } from '../db/';
  * @dataValidation
  * @seeding
  */
-import * as format from '../utilities/formatHandler/index';
-import { encrypt, compare } from '../utilities/security/encryptionHandler';
-import { asignToken, verifyToken, getIdentity } from '../utilities/security/tokenHandler';
+import * as security from '../utilities/security/';
 import * as validate from '../utilities/validation';
 
 /**
@@ -32,9 +30,9 @@ const urlencodedParser = bodyParser.urlencoded({ extended: false });
 /**
  * Manage user routes
  */
-router.get('/', jsonParser, verifyToken, async (req, res) => {
+router.get('/', jsonParser, security.verifyToken, async (req, res) => {
   try {
-    const _id = await getIdentity(req.body.token);
+    const _id = await security.get_idFromToken(req.body.token);
     res.status(200).send(`Welcome! your id: ${_id}`);
   } catch (error) {
     return res.status(500).json({ msg: 'Something went wrong!' });
@@ -66,25 +64,25 @@ router.get('/register', jsonParser, async (req, res) => {
     const userExists = await query(
       'SELECT FROM users WHERE username = $1 OR email = $2 OR public_name = $3 LIMIT 1',
       [req.body.username, req.body.email, req.body.public_name],
-      false
+      1
     );
     if (userExists) {
       return res.status(400).json({ msg: 'Username not available' });
     }
     // GENERATE A HASHED UNIQUE ID AND A HASHED PASSWORD
-    const hashedId = await encrypt(req.body.username + req.body.email);
-    const hashedPassword = await encrypt(req.body.password);
+    const hashedId = await security.encrypt(req.body.username + req.body.email, true);
+    const hashedPassword = await security.encrypt(req.body.password);
     // CREATE USER
     const newUser = await query(
       'INSERT INTO users(_id, username, password, email, public_name) VALUES($1, $2, $3, $4, $5)',
       [hashedId, req.body.username, hashedPassword, req.body.email, req.body.public_name]
     );
     // CHECK FOR ERRORS IN THE QUERY
-    if (newUser?.code) {
+    if (newUser == undefined || newUser?.code) {
       return res.status(500).json({ msg: 'Something went wrong!' });
     }
     // SEND RESPONSE BACK TO CLIENT
-    res.status(200).send('Created successfully');
+    res.status(200).send('Registration successful');
   } catch (error) {
     return res.status(500).json({ msg: 'Something went wrong!' });
   }
@@ -101,23 +99,23 @@ router.get('/login', jsonParser, async (req, res) => {
   try {
     // CHECK USER IN DATABASE
     const user = await query(
-      'SELECT _id, username, password FROM users WHERE username = $1 OR email = $1',
+      'SELECT _id, username, password FROM users WHERE username = $1 OR email = $1 LIMIT 1',
       [req.body.username],
-      false
+      1
     );
     // REJECT USERNAME
-    if (!user) {
+    if (!user || user == undefined) {
       return res.status(400).json({ msg: 'Invalid username or password' });
     }
     // CHECK IF PASSWORD IS CORRECT
-    const validPassword = await compare(req.body.password, user.password);
+    const validPassword = await security.compare(req.body.password, user.password);
     // REJECT PASSWORD
     if (!validPassword) {
       return res.status(400).json({ msg: 'Invalid username or password' });
     }
     // CREATE AND ASIGN TOKEN
     else {
-      const token = await asignToken(user._id);
+      const token = await security.asignToken(user._id);
       res.status(200).send({ msg: `Welcome ${user._id} \nHere is your Token: ${token}` });
     }
   } catch (error) {

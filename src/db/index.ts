@@ -34,7 +34,12 @@ const db = new Pool({
 /**
  * @param log Specify if the query should be logged in the console
  */
-export async function query(queryString: string, params?: any[], bulk?: boolean, log?: boolean) {
+export async function query(
+  queryString: string,
+  params?: any[],
+  quantity: number = 0,
+  log = false
+) {
   const start = Date.now();
   try {
     const response = await db.query(queryString, params);
@@ -46,10 +51,19 @@ export async function query(queryString: string, params?: any[], bulk?: boolean,
         rows: response.rowCount,
       });
     }
-    if (!bulk && response && response.rows.length > 0) {
+    if (quantity == 1 && response && response.rowCount > 0) {
+      // RETURN JUST ONE OBJECT
       return response.rows[0];
-    } else if (bulk && response && response.rows.length > 0) {
+    } else if (quantity <= 0 && response && response.rowCount > 0) {
+      // RETURN ALL THE OBJECTS
       return response.rows;
+    } else if (quantity > 1 && response && response.rowCount > 0) {
+      //RETURN THE SPECIFIED NUMBER OF OBJECTS OR ALL THE OBJECTS
+      let response_array: any[] = [];
+      for (let i = 0; i < quantity && i < response.rowCount; i++) {
+        response_array.push(response.rows[i]);
+      }
+      return response_array;
     }
   } catch (error) {
     if (log) {

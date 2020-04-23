@@ -47,23 +47,23 @@ class TableSeeder {
         'FOREIGN KEY (post_id) REFERENCES posts(_id) ON DELETE CASCADE)';
 
       // CREATE TABLE USERS
-      const users = await query(createUsersTable, undefined, true);
+      const users = await query(createUsersTable, undefined, 0, true);
       // CHECK IF THE QUERY RETURNED AN ERROR
       if (users?.code) {
         return users;
       }
       // CREATE TABLE USERS_ADDRESS
-      const users_address = await query(creatUsers_adressTable, undefined, true);
+      const users_address = await query(creatUsers_adressTable, undefined, 0, true);
       if (users_address?.code) {
         return users_address;
       }
       // CREATE TABLE POSTS
-      const posts = await query(createPostsTable, undefined, true);
+      const posts = await query(createPostsTable, undefined, 0, true);
       if (posts?.code) {
         return posts;
       }
       // CREATE TABLE COMMENTS
-      const comments = await query(createCommentsTable, undefined, true);
+      const comments = await query(createCommentsTable, undefined, 0, true);
       if (comments?.code) {
         return comments;
       }
@@ -76,23 +76,23 @@ class TableSeeder {
       // WHEN DROPPING A TABLE, DO IT FROM LOWER TO UPPER IN HIERARCHY CALL
 
       // DROP TABLE COMMENTS
-      const comments = await query('DROP TABLE IF EXISTS comments', undefined, true);
+      const comments = await query('DROP TABLE IF EXISTS comments', undefined, 0, true);
       // CHECK IF THE QUERY RETURNED AN ERROR
       if (comments?.code) {
         return comments;
       }
       // DROP TABLE POSTS
-      const posts = await query('DROP TABLE IF EXISTS posts', undefined, true);
+      const posts = await query('DROP TABLE IF EXISTS posts', undefined, 0, true);
       if (posts?.code) {
         return posts;
       }
       // DROP TABLE USERS_ADDRESS
-      const users_address = await query('DROP TABLE IF EXISTS usersaddress', undefined, true);
+      const users_address = await query('DROP TABLE IF EXISTS usersaddress', undefined, 0, true);
       if (users_address?.code) {
         return users_address;
       }
       // DROP TABLE USERS
-      const users = await query('DROP TABLE IF EXISTS users', undefined, true);
+      const users = await query('DROP TABLE IF EXISTS users', undefined, 0, true);
       if (users?.code) {
         return users;
       }

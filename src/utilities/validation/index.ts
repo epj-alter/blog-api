@@ -1,2 +1,3 @@
-export * from './users';
-export * from './posts';
+export { user } from './users';
+export { post } from './posts';
+export { token } from './token';

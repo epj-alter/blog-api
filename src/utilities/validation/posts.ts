@@ -6,10 +6,10 @@ class PostValidation {
   }
 
   private post_insert = Joi.object({
-    _id: Joi.string().min(6).required(),
+    token: Joi.string().min(10).required(),
     title: Joi.string().min(6).max(58).required(),
     image: Joi.string().uri().min(6).required(),
-    content: Joi.string().min(12).required(),
+    content: Joi.string().min(50).max(15000).required(),
   });
 }
 

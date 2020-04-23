@@ -8,12 +8,11 @@ class PostSeeder {
         const post = await query(
           'INSERT INTO posts(user_id, title, image, content) VALUES($1, $2, $3, $4)',
           [
-            '$2a$10$Oyf8A1NEJZwPZKewNBqEB./NKYxxBExqWFv9ijm14wfQOeRl0IuHS',
+            '$2a$10$TNQUwgF7rAeCpPuE7dJ/3OYIhfUAxWn3unZbBI3OsKSJB90rwFFbW',
             faker.random.words(),
             'http://picsum.photos/640/480/',
             faker.lorem.paragraphs(),
-          ],
-          true
+          ]
         );
         if (post?.code) {
           return post;
