@@ -17,3 +17,10 @@ export function dateToLocale(date) {
   const options = { year: 'numeric', month: 'long', day: '2-digit' };
   return date.toLocaleDateString(undefined, options);
 }
+
+export function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  //The maximum is inclusive and the minimum is inclusive
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}

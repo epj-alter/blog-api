@@ -3,6 +3,7 @@
  */
 import users from './users';
 import posts from './posts';
+import comments from './comments';
 import root from './root';
 
 /**
@@ -13,4 +14,5 @@ export default function routes(app: any) {
   app.use('/', root);
   app.use('/api/user', users);
   app.use('/api/post', posts);
+  app.use('/api/comment', comments);
 }

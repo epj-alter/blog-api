@@ -27,8 +27,10 @@ const router = Router();
 const jsonParser = bodyParser.json();
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
+// ----------------- ROUTES ----------------- //
+
 /**
- * Manage user routes
+ * GET ALL
  */
 router.get('/', jsonParser, security.verifyToken, async (req, res) => {
   try {

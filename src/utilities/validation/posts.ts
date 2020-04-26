@@ -11,6 +11,12 @@ class PostValidation {
     image: Joi.string().uri().min(6).required(),
     content: Joi.string().min(50).max(15000).required(),
   });
+
+  select(data: any, options?: Joi.ValidationOptions) {
+    return this.post_select.validate(data, options);
+  }
+
+  private post_select = Joi.number().required();
 }
 
 export const post = new PostValidation();

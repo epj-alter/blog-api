@@ -26,7 +26,7 @@ export async function verifyToken(req, res, next) {
 }
 
 export function asignToken(userId: string) {
-  return jwt.sign({ _id: userId }, TOKEN_SECRET, { expiresIn: '1h' });
+  return jwt.sign({ _id: userId }, TOKEN_SECRET, { expiresIn: '24h' });
 }
 
 export function get_idFromToken(token: string) {

@@ -1,2 +1,2 @@
 export { tables } from './tables';
-export { posts } from './posts';
+export { data } from './data';
