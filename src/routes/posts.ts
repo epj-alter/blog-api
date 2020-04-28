@@ -38,7 +38,7 @@ router.get('/', jsonParser, async (req, res) => {
   try {
     // FETCH ALL POSTS
     const posts = await query(
-      "SELECT posts.title, users.public_name as author, posts.image, CONCAT(LEFT(posts.content, 50), '...') AS preview, posts.created, posts.last_update, COUNT(comments.post_id) AS comments FROM posts LEFT JOIN comments ON comments.post_id = posts._id LEFT JOIN users ON users._id = posts.user_id GROUP BY posts.title, users.public_name, posts.image, posts.created, posts.last_update, preview"
+      "SELECT posts._id, posts.title, users.public_name as author, posts.image, CONCAT(LEFT(posts.content, 50), '...') AS preview, posts.created, posts.last_update, COUNT(comments.post_id) AS comments FROM posts LEFT JOIN comments ON comments.post_id = posts._id LEFT JOIN users ON users._id = posts.user_id GROUP BY posts.last_update, posts.title, users.public_name, posts.image, posts.created, posts._id, preview"
     );
     if (!posts) {
       return res.status(400).json({ msg: 'No posts found.' });
@@ -101,7 +101,7 @@ router.get('/:post_id', jsonParser, async (req, res) => {
   // GET POST
   try {
     const post = await query(
-      "SELECT posts._id, posts.title, users.public_name as author, posts.image, CONCAT(LEFT(posts.content, 50), '...') AS preview, posts.created, COUNT(comments.post_id) AS comments FROM posts  LEFT JOIN comments ON comments.post_id = posts._id LEFT JOIN users ON users._id = posts.user_id WHERE posts._id = $1 GROUP BY posts._id, posts.title, users.public_name, posts.image, posts.created, preview",
+      'SELECT posts._id, posts.title, users.public_name as author, posts.image, posts.content, posts.created, COUNT(comments.post_id) AS comments FROM posts LEFT JOIN comments ON comments.post_id = posts._id LEFT JOIN users ON users._id = posts.user_id WHERE posts._id = $1 GROUP BY posts._id, posts.title, users.public_name, posts.image, posts.created, posts.content',
       [req.params.post_id],
       1
     );
